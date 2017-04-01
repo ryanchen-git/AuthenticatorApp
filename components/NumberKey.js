@@ -28,7 +28,9 @@ export default class NumberKey extends Component {
     return (
       <View style={styles.numberView}>
         <TouchableOpacity onPress={this.pressNumber}>
-          <Text style={styles.numberText}>{this.props.number}</Text>
+          <Text style={styles.numberText}>
+          	{this.props.number}
+          </Text>
         </TouchableOpacity>
       </View>
     );

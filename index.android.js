@@ -3,7 +3,7 @@
  * https://github.com/facebook/react-native
  */
 
-import MdnScreen from './components/MdnScreen.js';
+import LoginScreen from './components/LoginScreen.js';
 
 import React, { Component } from 'react';
 import {
@@ -25,23 +25,23 @@ export default class AuthenticatorApp extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      mdnScreen: false
+      loginScreen: false
     };
     this.nextScreen = this.nextScreen.bind(this);
   }
 
   /*
     Function: nextScreen
-    Purpose: Set the state to display the MDN screen
+    Purpose: Set the state to display the login screen
   */
   nextScreen() {
     this.setState({
-      mdnScreen: true
+      loginScreen: true
     });
   }
 
   render() {
-    if (!this.state.mdnScreen) {
+    if (!this.state.loginScreen) {
       return (
         <TouchableOpacity onPress={this.nextScreen} style={styles.container}>
           <StatusBar hidden={true} />
@@ -62,7 +62,7 @@ export default class AuthenticatorApp extends Component {
         </TouchableOpacity>
       );
     } else {
-      return <MdnScreen />
+      return <LoginScreen />
     }
   }
 }

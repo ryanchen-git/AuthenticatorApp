@@ -1,3 +1,4 @@
+import Header from './Header.js';
 import NumberKey from './NumberKey.js';
 
 import React, { Component } from 'react';
@@ -5,7 +6,6 @@ import {
   StyleSheet,
   Text,
   Image,
-  StatusBar,
   View,
   ScrollView,
   TouchableOpacity,
@@ -13,13 +13,15 @@ import {
 } from 'react-native';
 
 /*
-  Component: MdnScreen
-  Purpose: Display the MDN screen
+  Component: LoginScreen
+  Purpose: Display the MDN and OTP screen
 */
-export default class MdnScreen extends Component {
+export default class LoginScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      mdnScreen: true,
+      otpScreen: false,
       numberSet: [
         [1, 2, 3],
         [4, 5, 6],
@@ -30,11 +32,14 @@ export default class MdnScreen extends Component {
       showPlaceHolder: true,
       phoneNumber: '',
       formattedPhoneNumber: '',
-      validPhoneNumber: false
+      validPhoneNumber: false,
+      otpCode: ''
     };
     this.setPhoneField = this.setPhoneField.bind(this);
+    this.setOtpField = this.setOtpField.bind(this);
     this.pressDelete = this.pressDelete.bind(this);
     this.pressContinue = this.pressContinue.bind(this);
+    this.pressResend = this.pressResend.bind(this);
   }
 
   /*
@@ -57,7 +62,7 @@ export default class MdnScreen extends Component {
   /*
     Function: setPhoneField
     Purpose: Show the phone number based on user's input
-    Parameters: Number pressed by the user
+    Parameters: Number key pressed by the user
   */
   setPhoneField(key) {
     var formattedPhoneNumber = '';
@@ -111,6 +116,40 @@ export default class MdnScreen extends Component {
           formattedPhoneNumber: formattedPhoneNumber,
           phoneNumber: phoneNumber,
           validPhoneNumber: false
+        });
+      }
+    }
+  }
+
+  /*
+    Function: setOtpField
+    Purpose: Show the OTP based on user's input
+    Parameters: Number key pressed by the user
+  */
+  setOtpField(key) {
+    var otpCode = this.state.otpCode;
+    var otpLength = '';
+
+    if (key === "") {
+      return;
+    }
+
+    if (typeof key === "number") {
+      otpCode = otpCode + key;
+    }
+    otpLength = otpCode.length;
+
+    if (typeof key === "number") { // If number key is pressed
+      if (otpLength <= 6) {
+        this.setState({
+          otpCode: otpCode
+        });
+      }
+    } else { // If "<" is pressed
+      if (otpLength > 0) {
+        otpCode = otpCode.slice(0, -1);
+        this.setState({
+          otpCode: otpCode
         });
       }
     }
@@ -186,7 +225,19 @@ export default class MdnScreen extends Component {
     Purpose: Handle the press event for the Continue button
   */
   pressContinue() {
-    alert(this.state.phoneNumber);
+    this.setState({
+      mdnScreen: false,
+      otpScreen: true
+    })
+    //alert(this.state.phoneNumber);
+  }
+
+  /*
+    Function: pressResend
+    Purpose: Handle the press event for the Resend code
+  */
+  pressResend() {
+    alert(this.state.otpCode + " Resending the code..");
   }
 
   /*
@@ -216,44 +267,71 @@ export default class MdnScreen extends Component {
   }
 
   render() {
-    return (
-      <Image source={require('../img/genericBackground.png')} style={styles.container}>
-        <ScrollView style={styles.container}>
-          <StatusBar barStyle="light-content" />
-          <Text style={styles.header}>
-            Enter Phone Number
-          </Text>
-          <View style={styles.mainTextView}>
-            <Text style={styles.mainText}>
-              Enter the number where you want your verification code sent
-            </Text>
-          </View>
-          <View style={styles.optionsText}>
-            <View style={styles.showPhoneView}>
-              {this.showPhoneText()}
+    if (this.state.mdnScreen) { // Show MDN screen
+      return (
+        <Image source={require('../img/genericBackground.png')} style={styles.container}>
+          <ScrollView style={styles.container}>
+            <Header title="Enter Phone Number" />
+            <View style={styles.mainTextView}>
+              <Text style={styles.mainText}>
+                Enter the number where you want your verification code sent
+              </Text>
             </View>
-            <View style={styles.deletePhone}>
-              <TouchableOpacity onPress={this.pressDelete}>
-                {this.showDeleteBtn()}
-              </TouchableOpacity>
+            <View style={styles.optionsText}>
+              <View style={styles.showPhoneView}>
+                {this.showPhoneText()}
+              </View>
+              <View style={styles.deletePhone}>
+                <TouchableOpacity onPress={this.pressDelete}>
+                  {this.showDeleteBtn()}
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
-          <View style={styles.textInputView}>
-            <Text style={styles.textInput}>
-              {this.showPhoneInput()}
-            </Text>
-          </View>
-          {this.state.numberSet.map(function(set, index) {
-            return <View key={index} style={styles.numberPad}>
-              {set.map(function(number, index) {
-                return <NumberKey key={index} number={number} parentMethod={this.setPhoneField} />
-              }, this)}
-          </View>
-          }, this)}
-          {this.showContinueBtn()}
-        </ScrollView>
-      </Image>
-    );
+            <View style={styles.mdnInputView}>
+              <Text style={styles.textInput}>
+                {this.showPhoneInput()}
+              </Text>
+            </View>
+            {this.state.numberSet.map(function(set, index) {
+              return <View key={index} style={styles.numberPad}>
+                {set.map(function(number, index) {
+                  return <NumberKey key={index} number={number} parentMethod={this.setPhoneField} />
+                }, this)}
+            </View>
+            }, this)}
+            {this.showContinueBtn()}
+          </ScrollView>
+        </Image>
+      );
+    } else if (this.state.otpScreen) { // Show OTP screen
+      return (
+        <Image source={require('../img/genericBackground.png')} style={styles.container}>
+          <ScrollView style={styles.container}>
+            <Header title="Enter Verification Code" />
+            <View style={styles.mainTextView}>
+              <Text style={styles.mainText}>
+                Enter the 6 digit code you just received via text message
+              </Text>
+            </View>
+            <View style={styles.otpInputView}>
+              <Text style={styles.textInput}>
+                <Text style={styles.phoneNumberText}>{this.state.otpCode}</Text>
+              </Text>
+            </View>
+            {this.state.numberSet.map(function(set, index) {
+              return <View key={index} style={styles.numberPad}>
+                {set.map(function(number, index) {
+                  return <NumberKey key={index} number={number} parentMethod={this.setOtpField} />
+                }, this)}
+            </View>
+            }, this)}
+            <TouchableOpacity onPress={this.pressResend}>
+              <Text style={styles.resendText}>Resend code</Text>
+            </TouchableOpacity>
+          </ScrollView>
+        </Image>
+      );
+    }
   }
 }
 
@@ -265,16 +343,6 @@ const styles = StyleSheet.create({
     flex: 1,
     width: null,
     height: null
-  },
-  header: {
-    width: '100%',
-    height: 64,
-    fontSize: 17,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    paddingTop: 30,
-    color: '#fff',
-    backgroundColor: '#4a90e2'
   },
   mainTextView: {
     alignItems: 'center'
@@ -299,7 +367,7 @@ const styles = StyleSheet.create({
     paddingLeft: 40
   },
   showPhoneText: {
-    color: '#AFAFAF',
+    color: '#afafaf',
     backgroundColor: 'rgba(0,0,0,0)',
     fontSize: 12
   },
@@ -310,15 +378,25 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     paddingRight: 40
   },
-  textInputView: {
-    alignSelf: 'center',
+  mdnInputView: {
     borderWidth: 0,
+    alignSelf: 'center',
     width: '80%',
     borderColor: '#4a90e2',
     borderBottomWidth: 2,
     borderStyle: 'solid',
     marginBottom: 23
   },
+  otpInputView: {
+    alignSelf: 'center',
+    width: '80%',
+    height: 50,
+    borderColor: '#afafaf',
+    borderBottomWidth: 1,
+    borderStyle: 'solid',
+    marginTop: 38,
+    marginBottom: 23
+  },  
   textInput: {
     textAlign: 'center',
     fontSize: 30,
@@ -327,7 +405,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0)'
   },
   placerHolderText: {
-    color: '#AFAFAF'
+    color: '#afafaf'
   },
   phoneNumberText: {
     color: '#595959'
@@ -348,5 +426,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#4a90e2',
     padding: 18,
     width: '80%'
+  },
+  resendText: {
+    fontSize: 15,
+    textAlign: 'center',
+    color: '#4a90e2',
+    marginTop: 40,
+    backgroundColor: 'rgba(0,0,0,0)'
   }
 });
